@@ -3,53 +3,63 @@
         {
             "tag": "greeting", 
             "patterns": [ "Hi", "Hey", "How are you", "Is anyone there?", "Hello", "Good day"],
-            "responses": [ "Hey", "Hello, thanks for visiting", "Hi there, what can I do for you?", "Hi there, how can I help?", "Hi! How can I assist you today?"]
+            "responses": [ "Hey", "Hello, thanks for visiting", "Hi there, what can I do for you?", "Hi there, how can I help?", "Hi! How can I assist you today?"],
+            "state" : "base"
         },
         {
             "tag": "goodbye",
             "patterns": ["Bye", "See you later", "Goodbye"],
-            "responses": [ "See you later, thanks for visiting", "Have a nice day", "Bye! Come back again soon." ]
+            "responses": [ "See you later, thanks for visiting", "Have a nice day", "Bye! Come back again soon." ],
+            "state" : "base"
         },
         {
             "tag": "thanks",
             "patterns": ["Thanks", "Thank you", "That's helpful", "Thank's a lot!"],
-            "responses": ["Happy to help!", "Any time!", "My pleasure"]
+            "responses": ["Happy to help!", "Any time!", "My pleasure"],
+            "state" : "base"
         },
         {
             "tag": "booking_flight",
-            "patterns": ["I would like to make a reservation", "Can I book a flight?", "I want to make a booking", "make a reservation"],
+            "patterns": ["I would like to make a reservation", "Can I book a flight?", "I want to make a booking", "make a reservation", "book a flight"],
             "responses": ["Sure, I only need to know a few details",
-            "Lovely. Let's begin with the reservation"]
+            "Lovely. Let's begin with the reservation"],
+            "state" : "base"
         },
         {
             "tag": "seat_selection",
             "patterns": ["How can I choose my seat?", "Can I select a specific seat?", "Tell me about seat options."],
-            "responses": ["During the booking process, you will have the option to select your seat. We offer both standard and premium seating options.", "When making your reservation, you will be able to choose your preferred seat from the available options."]
+            "responses": ["During the booking process, you will have the option to select your seat. We offer both standard and premium seating options.", "When making your reservation, you will be able to choose your preferred seat from the available options."],
+            "state" : "base"
         },
         {
             "tag": "seat_availability",
             "patterns": ["Which seats are available?", "Are there any window seats?", "What seat types do you have?"],
-            "responses": ["We have a variety of seat options available, including window seats, aisle seats, and middle seats. The specific availability can vary based on the flight and seat map.", "We offer different seat types, such as window seats, aisle seats, and middle seats. The availability depends on the flight and seating configuration."]
+            "responses": ["We have a variety of seat options available, including window seats, aisle seats, and middle seats. The specific availability can vary based on the flight and seat map.", "We offer different seat types, such as window seats, aisle seats, and middle seats. The availability depends on the flight and seating configuration."],
+            "state" : "base"
         },
         {
             "tag": "seat_change",
             "patterns": ["Can I change my seat after booking?", "What if I want to switch seats?", "Is it possible to modify my seat selection?"],
-            "responses": ["Yes, you can change your seat selection after booking. Please contact our customer support, and they will assist you with the seat change process.", "If you wish to switch seats after booking, you can reach out to our customer service team, and they will help you with the seat change request."]
+            "responses": ["Yes, you can change your seat selection after booking. Please contact our customer support, and they will assist you with the seat change process.", "If you wish to switch seats after booking, you can reach out to our customer service team, and they will help you with the seat change request."],
+            "state" : "base"
         },
         {
             "tag": "seat_fee",
             "patterns": ["Is there an extra fee for seat selection?", "Do I need to pay for choosing my seat?", "Are seat reservations free?"],
-            "responses": ["Seat selection may be subject to an additional fee depending on the fare type and seat category. The pricing details will be provided during the booking process.", "In some cases, there may be a fee associated with seat selection, especially for premium seats or certain fare classes. The seat reservation fees will be displayed during the booking process."]
+            "responses": ["Seat selection may be subject to an additional fee depending on the fare type and seat category. The pricing details will be provided during the booking process.", "In some cases, there may be a fee associated with seat selection, especially for premium seats or certain fare classes. The seat reservation fees will be displayed during the booking process."],
+            "state" : "base"
         },
         {
             "tag": "seat_preference",
             "patterns": ["I have a specific seat preference.", "Can I request a particular seat?", "I would like to have a seat near the window."],
-            "responses": ["We understand that seat preferences can vary. While we cannot guarantee specific seats, you can provide your preference during the booking process, and we will do our best to accommodate it.", "We strive to accommodate seat preferences whenever possible. During the booking process, you can mention your seat preference, and we will try to assign a seat that meets your preference."]
+            "responses": ["We understand that seat preferences can vary. While we cannot guarantee specific seats, you can provide your preference during the booking process, and we will do our best to accommodate it.", "We strive to accommodate seat preferences whenever possible. During the booking process, you can mention your seat preference, and we will try to assign a seat that meets your preference."],
+            "state" : "base"
         },
         {
             "tag": "cancellation",
             "patterns": ["I would like to cancel my flight", "Can I cancel my flight?", "I want to make a cancellation", "Cancel a booking", "Cancel a flight"],
-            "responses": ["Sure, which is your reference number?"]
+            "responses": ["Sure, which is your reference number?"],
+            "state" : "base"
         },
         {
             "tag": "payments",
@@ -62,7 +72,20 @@
             "responses": [
                 "The payment is on arrival. We accept cash and card",
                 "You can pay on arrival by cash or card"
-            ]
+            ],
+            "state" : "base"
+        },
+        {
+            "tag": "edit", 
+            "patterns": [ "I want to change some details", "change details", "I want to edit some information", "edit information", "change the departure to", "edit the departure to", "change the city to", "edit the city to", ""],
+            "responses": [ "Sure! What do you want to change in your details?", "No problem! What do you want to change in your details?" ],
+            "state" : "booking"
+        },
+        {
+            "tag": "exit", 
+            "patterns": [ "No, that's all", "Nothing else", "No, thank you"],
+            "responses": [ "All right!" ],
+            "state" : "booking"
         }
     ]
 }

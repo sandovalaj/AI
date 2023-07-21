@@ -1,61 +1,161 @@
-import random
+import nltk
 import json
+import random
+from nltk.stem import PorterStemmer
 
-import torch
+from training import train_and_evaluate, load_model
 
-from model import NeuralNet
-from nltk_utils import bag_of_words, tokenize
+stemmer = PorterStemmer()
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+BASE_STATE = "base"
+BOOKING_STATE = "booking"
 
-with open('intents.json', 'r') as json_data:
-    intents = json.load(json_data)
+def load_intents():
+    with open('intents.json') as file:
+        intents = json.load(file)['intents']
+    return intents
 
-FILE = "data.pth"
-data = torch.load(FILE)
 
-input_size = data["input_size"]
-hidden_size = data["hidden_size"]
-output_size = data["output_size"]
-all_words = data['all_words']
-tags = data['tags']
-model_state = data["model_state"]
+def predict_intent(user_input, classifier, vectorizer, state, intents):
+    user_input = nltk.word_tokenize(user_input)
+    user_input = [w.lower() for w in user_input if w.isalpha()]
+    user_input = [stemmer.stem(w) for w in user_input]
 
-model = NeuralNet(input_size, hidden_size, output_size).to(device)
-model.load_state_dict(model_state)
-model.eval()
+    print("Preprocessed user input:", user_input)
 
-bot_name = "Sam"
+    if user_input:
+        user_input = ' '.join(user_input)
 
-def get_response(msg):
-    sentence = tokenize(msg)
-    X = bag_of_words(sentence, all_words)
-    X = X.reshape(1, X.shape[0])
-    X = torch.from_numpy(X).to(device)
+        # Filter intents based on the current state
+        filtered_intents = [intent_data for intent_data in intents if intent_data['state'] == state]
 
-    output = model(X)
-    _, predicted = torch.max(output, dim=1)
+        # Create a list of tags (intents) for the filtered intents
+        filtered_intent_tags = [intent_data['tag'] for intent_data in filtered_intents]
 
-    tag = tags[predicted.item()]
+        # If the intent list is empty after filtering, set the intent to None
+        if not filtered_intent_tags:
+            return None
 
-    probs = torch.softmax(output, dim=1)
-    prob = probs[0][predicted.item()]
-    if prob.item() > 0.75:
-        for intent in intents['intents']:
-            if tag == intent["tag"]:
-                return random.choice(intent['responses'])
+        user_input_tf_idf = vectorizer.transform([user_input])
+        intent = classifier.predict(user_input_tf_idf)
+
+        # Check if the predicted intent is in the filtered intent tags
+        if intent[0] in filtered_intent_tags:
+            print("Predicted intent:", intent[0])
+            return intent[0]
+        else:
+            return None
+    else:
+        return None
+
+
+def generate_response(intent, intents):
+    if intent is None:
+        return "I'm sorry, I don't understand. Can you please rephrase your question?"
+    print("Received intent:", intent)
+
+    if intent == "booking_flight":
+        return "BOOKING_IN_PROGRESS"
     
-    return "I do not understand..."
+    """
+    for intent_data in intents:
+        print("Current intent_data['tag']:", intent_data['tag'])
+        if intent_data['tag'] == (intent):
+            responses = intent_data['responses']
+            return (responses)
+    """
+
+    matched_intents = [intent_data for intent_data in intents if intent_data['tag'] == intent]
+    if matched_intents:
+        responses = matched_intents[0]['responses']
+        return random.choice(responses)
+    else:
+        return "I'm sorry, I don't have a response for that."
 
 
-if __name__ == "__main__":
-    print("Let's chat! (type 'quit' to exit)")
+def booking_process(state):
+    # Implement the booking flow here, asking for details like departure city, destination, date, etc.
+    print("Sure! I only need to know a few details for the booking.")
+    departure_city = input("Please enter the departure city: ")
+    destination = input("Please enter the destination: ")
+    date = input("Please enter the date of the flight: ")
+
+    print("Chatbot: Great! Is there anything else you need to do regarding your booking?")
+
+    # Chatbot logic
     while True:
-        # sentence = "do you use credit cards?"
-        sentence = input("You: ")
-        if sentence == "quit":
+        user_input = input("User: ")
+        intent = predict_intent(user_input, classifier, vectorizer, CURRENT_STATE, intents)
+
+        if intent == "edit":
+            print("Chatbot: what do you want to edit?")
+        elif intent == "exit":
+            responses = generate_response(intent, intents)
+            print("Chatbot:", responses)
+            print("Great! Your flight is booked. Here are the details:")
+            print(departure_city, destination, date)
+            return
+        else:
+            print("You are still in a booking state!")
+
+
+def get_response(user_input):
+    train_and_evaluate()
+    
+    # Load the trained model
+    classifier, vectorizer = load_model()
+
+    intents = load_intents()
+    CURRENT_STATE = BASE_STATE
+    intent = predict_intent(user_input, classifier, vectorizer, CURRENT_STATE, intents)
+
+    if intent is None:
+        return "I'm sorry, I don't understand. Can you please rephrase your question?"
+    print("Received intent:", intent)
+
+    if intent == "booking_flight":
+        return "BOOKING_IN_PROGRESS"
+    
+    """
+    for intent_data in intents:
+        print("Current intent_data['tag']:", intent_data['tag'])
+        if intent_data['tag'] == (intent):
+            responses = intent_data['responses']
+            return (responses)
+    """
+
+    matched_intents = [intent_data for intent_data in intents if intent_data['tag'] == intent]
+    if matched_intents:
+        responses = matched_intents[0]['responses']
+        return random.choice(responses)
+    else:
+        return "I'm sorry, I don't have a response for that."       
+
+
+# Run the training and evaluation process
+if __name__ == '__main__':
+    train_and_evaluate()
+    
+    # Load the trained model
+    classifier, vectorizer = load_model()
+
+    intents = load_intents()
+
+    CURRENT_STATE = BASE_STATE
+
+    # Chatbot logic
+    while True:
+        user_input = input("User: ")
+        intent = predict_intent(user_input, classifier, vectorizer, CURRENT_STATE)
+
+        if intent == "booking_flight":
+            CURRENT_STATE = BOOKING_STATE
+            booking_process(CURRENT_STATE)  # Start the booking process
+            CURRENT_STATE = BASE_STATE
+        else:
+            responses = generate_response(intent, intents)
+            print("Chatbot:", responses)
+
+        # Implement exit condition
+        if user_input.lower() == "exit":
             break
-
-        resp = get_response(sentence)
-        print(resp)
-
