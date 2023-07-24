@@ -2,13 +2,13 @@
     "intents": [
         {
             "tag": "greeting", 
-            "patterns": [ "Hi", "Hey", "How are you", "Is anyone there?", "Hello", "Good day"],
+            "patterns": [ "Hi", "Hey", "How are you", "Is anyone there?", "Hello", "Good day", "hi", "hello", "hey"],
             "responses": [ "Hey", "Hello, thanks for visiting", "Hi there, what can I do for you?", "Hi there, how can I help?", "Hi! How can I assist you today?"],
             "state" : "base"
         },
         {
             "tag": "goodbye",
-            "patterns": ["Bye", "See you later", "Goodbye"],
+            "patterns": ["Bye", "See you later", "Goodbye", "bye", "see you later"],
             "responses": [ "See you later, thanks for visiting", "Have a nice day", "Bye! Come back again soon." ],
             "state" : "base"
         },
@@ -83,8 +83,14 @@
         },
         {
             "tag": "exit", 
-            "patterns": [ "No, that's all", "Nothing else", "No, thank you"],
+            "patterns": [ "No, that's all", "Nothing else", "No, thank you", "That's all"],
             "responses": [ "All right!" ],
+            "state" : "booking"
+        },
+        {
+            "tag": "name", 
+            "patterns": [ "My name is", "I am", "I'm", "My first name is", "My last name is"],
+            "responses": [ "Your name is" ],
             "state" : "booking"
         }
     ]
